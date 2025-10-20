@@ -11,6 +11,7 @@ struct Node{
 struct Node* newNode(int newData);
 void inputHead(struct Node **head, int newData);
 void inputTail(struct Node **head, int newData);
+void inputAfter(struct Node* prevNode, int newData);
 void deleteNode(struct Node **head, int key);
 void displayList(const struct Node *head);
 int  menu();
@@ -29,6 +30,22 @@ void inputHead(struct Node** head, int newData){
 }
 
 // araya ekle
+void inputAfter(struct Node* prevNode, int newData) {
+    // 1. düğüm null ise ekleme yapılmaz
+    if(prevNode == NULL ) {
+        printf("Onceki dugum NULL olamaz.\n");
+        return;
+    }
+
+    // yeni düğüm oluştur
+    struct Node* n = newNode(newData);
+
+    // yeni düğümün next'i, önceki düğümün next'ini göstersin
+    n->next = prevNode->next;
+
+    // Önceki düğümün next'i yeni düğümü göstersin
+    prevNode->next = n;
+}
 
 void inputTail(struct Node** head, int newData){
     struct Node* n = newNode(newData);
@@ -86,11 +103,18 @@ int menu(){
     printf("|~~~~~|~ Menu ~|~~~~~|\n");
     printf("1. Basa Ekle\n");
     printf("2. Sona Ekle\n");
-    printf("3. Dügüm Sil\n");
-    printf("4. Listeyi Goster\n");
-    printf("5. Cikis\n");
+     printf("3. Araya Ekle (Deger Sonrasina)\n");
+    printf("4. Dugum Sil\n");
+    printf("5. Listeyi Goster\n");
+    printf("6. Cikis\n");
     printf("Secim yapin: ");
-    scanf("%d", &choice);
+    
+    // scanf ve hata kontrolü
+    if (scanf("%d", &choice) != 1) {
+        int c;
+        while ((c = getchar()) != '\n' && c != EOF);
+        return -1;
+    }
     return choice;
 }
 
@@ -114,21 +138,41 @@ int main(){
             inputTail(&head, x);
             break;
         }
-        case 3: {
+        case 3: { // Araya Ekle
+            int m, key;
+            printf("Hangi degerden sonra eklenecek: ");
+            scanf("%d", &key);
+            
+            // Anahtar değere sahip düğümü bul
+            struct Node* temp = head;
+            while (temp != NULL && temp->data != key) {
+                temp = temp->next;
+            }
+
+            if (temp != NULL) {
+                printf("Eklenecek yeni veri: ");
+                scanf("%d", &m);
+                inputAfter(temp, m); // Yeni fonksiyonu çağırma
+            } else {
+                printf("%d degerine sahip dugum bulunamadi. Ekleme yapilamadi.\n", key);
+            }
+            break;
+        case 4: {
             int k;
             printf("Silinecek veri: ");
             scanf("%d", &k);
             deleteNode(&head, k);
             break;
         }
-        case 4:
+        case 5:
             displayList(head);
             break;
-        case 5:
+        case 6:
             printf("Cikis yapildi...\n");
             return 0;
         default:
             printf("Gecersiz secim.\n");
         }
     }
+}
 }
